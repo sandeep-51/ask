@@ -522,12 +522,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/upload-image", requireAdmin, upload.single("image"), async (req, res) => {
     try {
       if (!req.file) {
+        console.error("No file in request");
         return res.status(400).json({ error: "No image file provided" });
       }
 
       const imageUrl = `/attached_assets/uploads/${req.file.filename}`;
+      console.log("Image uploaded successfully:", imageUrl);
       res.json({ success: true, imageUrl });
     } catch (error: any) {
+      console.error("Image upload error:", error);
       res.status(500).json({ error: error.message || "Image upload failed" });
     }
   });
