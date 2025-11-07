@@ -29,6 +29,7 @@ const formBuilderSchema = z.object({
   subtitle: z.string().optional(),
   description: z.string().optional(),
   heroImageUrl: z.string().optional(),
+  backgroundImageUrl: z.string().optional(),
   watermarkUrl: z.string().optional(),
   logoUrl: z.string().optional(),
   customLinks: z.array(z.object({
@@ -89,6 +90,7 @@ export default function FormBuilder({ formId, onSuccess }: FormBuilderProps) {
       title: "",
       subtitle: "",
       description: "",
+      backgroundImageUrl: "",
       customLinks: [],
       customFields: [],
       baseFields: {
@@ -106,6 +108,7 @@ export default function FormBuilder({ formId, onSuccess }: FormBuilderProps) {
       subtitle: existingForm.subtitle || undefined,
       description: existingForm.description || undefined,
       heroImageUrl: existingForm.heroImageUrl || undefined,
+      backgroundImageUrl: existingForm.backgroundImageUrl || undefined,
       watermarkUrl: existingForm.watermarkUrl || undefined,
       logoUrl: existingForm.logoUrl || undefined,
       customLinks: existingForm.customLinks || [],
@@ -169,7 +172,7 @@ export default function FormBuilder({ formId, onSuccess }: FormBuilderProps) {
     },
   });
 
-  const handleImageUpload = async (field: "heroImageUrl" | "watermarkUrl" | "logoUrl", file: File) => {
+  const handleImageUpload = async (field: "heroImageUrl" | "backgroundImageUrl" | "watermarkUrl" | "logoUrl", file: File) => {
     setUploadingField(field);
     try {
       const result = await uploadMutation.mutateAsync(file);
@@ -540,6 +543,45 @@ export default function FormBuilder({ formId, onSuccess }: FormBuilderProps) {
                       </div>
                     </FormControl>
                     <FormDescription>Background image for the registration form</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="backgroundImageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Form Background Image</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                await handleImageUpload("backgroundImageUrl", file);
+                                e.target.value = '';
+                              }
+                            }}
+                            disabled={uploadingField === "backgroundImageUrl"}
+                            data-testid="input-background-image"
+                          />
+                          {uploadingField === "backgroundImageUrl" && (
+                            <Loader2 className="h-4 w-4 animate-spin self-center" />
+                          )}
+                        </div>
+                        {field.value && (
+                          <div className="relative w-full h-40 rounded-md overflow-hidden border">
+                            <img src={field.value} alt="Form Background" className="w-full h-full object-cover" />
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription>Background image for the entire registration form</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
