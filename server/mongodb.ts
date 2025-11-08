@@ -3,7 +3,7 @@ import { MongoClient, Db, ObjectId } from "mongodb";
 import { nanoid } from "nanoid";
 import type { Registration, InsertRegistration, ScanHistory } from "@shared/schema";
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://sandeepnath801051_db_user:AzcldlJxLtyzOr6O@cluster0.vm6uex5.mongodb.net/?appName=Cluster0";
 const DATABASE_NAME = process.env.DATABASE_NAME || "event_registration";
 
 let client: MongoClient;
@@ -11,18 +11,27 @@ let db: Db;
 
 async function connectToDatabase() {
   if (!client) {
-    client = new MongoClient(MONGODB_URI);
-    await client.connect();
-    db = client.db(DATABASE_NAME);
-    
-    // Create indexes
-    await db.collection("registrations").createIndex({ email: 1 });
-    await db.collection("registrations").createIndex({ status: 1 });
-    await db.collection("registrations").createIndex({ formId: 1 });
-    await db.collection("scan_history").createIndex({ ticketId: 1 });
-    await db.collection("event_forms").createIndex({ isPublished: 1 });
-    
-    console.log("Connected to MongoDB");
+    try {
+      console.log("🔄 Connecting to MongoDB...");
+      console.log("📍 URI:", MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@')); // Hide password in logs
+      console.log("📦 Database:", DATABASE_NAME);
+      
+      client = new MongoClient(MONGODB_URI);
+      await client.connect();
+      db = client.db(DATABASE_NAME);
+      
+      // Create indexes
+      await db.collection("registrations").createIndex({ email: 1 });
+      await db.collection("registrations").createIndex({ status: 1 });
+      await db.collection("registrations").createIndex({ formId: 1 });
+      await db.collection("scan_history").createIndex({ ticketId: 1 });
+      await db.collection("event_forms").createIndex({ isPublished: 1 });
+      
+      console.log("✅ Connected to MongoDB successfully!");
+    } catch (error) {
+      console.error("❌ MongoDB connection error:", error);
+      throw error;
+    }
   }
   return db;
 }
